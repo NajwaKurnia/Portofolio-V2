@@ -58,7 +58,7 @@ export const project ={
             'Mini Project': [
               {
                 title: 'Tic-Tac-Toe',
-                description: 'A web-based multiplayer Tic-Tac-Toe game application with real-time communication using WebSocket. Built with Node.js, Socket.IO, Next.js, TypeScript, and Tailwind CSS.',
+                description: 'A web-based multiplayer Tic-Tac-Toe game application with real-time communication using WebSocket. Built with Node.js, Socket.IO, Next.js, TypeScript, and Tailwind CSS. Game state is stored in-memory without a permanent database.',
                 image: '/tic-tac-toe.png',
                 link: 'https://github.com/NajwaKurnia/Tic-Tac-Toe',
                 size: 'large'
