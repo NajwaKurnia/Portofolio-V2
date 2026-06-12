@@ -2,6 +2,7 @@
 
 import {motion} from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { fadeUp, slideLeft, slideRight } from '../animations/motionVariants';
 import { skillsData } from '@/data/skillsData';
 export default function About() {
@@ -43,7 +44,7 @@ export default function About() {
             variants={slideRight}
           >
             <div className="w-72 h-96 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg overflow-hidden shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300 hover:shadow-blue-500/30">
-              <img src="profilpic.jpeg" alt="Profile Picture" className="object-cover w-full h-full" />
+              <Image src="/profilpic.jpeg" alt="Profile Picture" width={500} height={500} className="object-cover w-full h-full" />
             </div>
           </motion.div>
         </div>

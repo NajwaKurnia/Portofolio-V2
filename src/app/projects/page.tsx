@@ -3,6 +3,7 @@
 import { project, typedProject } from "@/data/project";
 import { Project } from "next/dist/build/swc/types";
 import { useState } from "react"
+import Image from "next/image";
 import { FaArrowUpRightFromSquare } from "react-icons/fa6";
 export default function Projects() {
     type Category = keyof typeof project | "All";
@@ -73,9 +74,11 @@ export default function Projects() {
                     `}
                     >
                     <div className="relative overflow-hidden">
-                        <img
+                        <Image
                         src={item.image}
                         alt={item.title}
+                        width={500} 
+                        height={500}
                         className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -91,7 +94,8 @@ export default function Projects() {
                         </p>
 
                         <a
-                        href={item.link}
+                        href={item.link} target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-all duration-300 font-semibold group/link"
                         >
                         View Project

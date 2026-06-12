@@ -107,7 +107,9 @@ export default function Home() {
                 className="w-80 h-96 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl overflow-hidden shadow-2xl"
               >
                 <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                  <img src="poto.jpeg" alt="Profile Picture" className="object-cover w-full h-full" />
+                  <Image src="/poto.jpeg" alt="Profile Picture" width={500} 
+                height={500}
+                className="object-cover w-full h-full" />
                 </div>
               </motion.div>
             </motion.div>
