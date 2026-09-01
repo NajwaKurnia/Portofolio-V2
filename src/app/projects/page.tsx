@@ -1,29 +1,54 @@
 'use client'
 
-import { project, typedProject } from "@/data/project";
-import { Project } from "next/dist/build/swc/types";
-import { useState } from "react"
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { FaArrowUpRightFromSquare } from "react-icons/fa6";
+
+type ProjectItem = {
+  id?: number;
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+  category: string;
+  size: string;
+};
+
 export default function Projects() {
-    type Category = keyof typeof project | "All";
-    const categories: Category[] = [
-    "All",
-    ...(Object.keys(project) as (keyof typeof project)[]),
-    ];
-    const [active, setActive] = useState<Category>("All");
-   const displayedProjects =
-    active === "All"
-        ? Object.entries(typedProject).flatMap(([category, items]) =>
-            items.map((item) => ({
-            ...item,
-            category,
-            }))
-        )
-        : (typedProject[active] ?? []).map((item) => ({
-            ...item,
-            category: active,
-        }));
+    const [active, setActive] = useState<string>("All");
+    const [dbProjects, setDbProjects] = useState<ProjectItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      const loadProjects = async () => {
+        try {
+          const response = await fetch('/api/projects');
+          const result = await response.json();
+
+          if (result.success && Array.isArray(result.data)) {
+            setDbProjects(result.data);
+            const uniqueCategories = [...new Set(result.data.map((item: ProjectItem) => item.category).filter(Boolean))];
+            if (active === 'All' && uniqueCategories.length > 0) {
+              setActive('All');
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load projects from database:', error);
+          setDbProjects([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadProjects();
+    }, []);
+
+    const categories = ["All", ...new Set(dbProjects.map((item) => item.category).filter(Boolean))];
+
+    const displayedProjects =
+      active === "All"
+        ? dbProjects
+        : dbProjects.filter((item) => item.category === active);
+
     const EmptyState = () => (
     <div className="text-center py-20 text-slate-400 ">
         <p className="text-slate-500 animate-pulse font-medium text-xl">No projects found...</p>
@@ -62,20 +87,22 @@ export default function Projects() {
 
             {/* Card project */}
             <section className="max-w-7xl mx-auto px-2">
-            {displayedProjects.length === 0 ? (
+            {isLoading ? (
+              <div className="py-20 text-center text-slate-400">Loading projects...</div>
+            ) : displayedProjects.length === 0 ? (
                 <EmptyState />
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                {displayedProjects.map((item) => (
+                {displayedProjects.map((item, index) => (
                     <div
-                    key={item.title}
+                    key={`${item.title}-${index}`}
                     className={`bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 cursor-pointer group
                         ${item.size === "large" ? "md:col-span-2" : "md:col-span-1"}
                     `}
                     >
                     <div className="relative overflow-hidden">
                         <Image
-                        src={item.image}
+                        src={item.image || '/favicon.ico'}
                         alt={item.title}
                         width={500} 
                         height={500}
@@ -94,7 +121,7 @@ export default function Projects() {
                         </p>
 
                         <a
-                        href={item.link} target="_blank"
+                        href={item.link || '#'} target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-all duration-300 font-semibold group/link"
                         >

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/dist/client/components/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const menus = [
@@ -12,7 +12,29 @@ export default function Navbar() {
     { name: "Contact", href: "/contact" },
   ];
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
+
+  const refreshAdminState = () => {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('admin_session='));
+
+    setIsAdmin(cookieValue?.split('=')[1] === 'authenticated');
+  };
+
+  useEffect(() => {
+    refreshAdminState();
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    refreshAdminState();
+    if (pathname.startsWith('/admin')) {
+      window.location.href = '/admin/login';
+    }
+  };
+
   return (
     <nav className="bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,7 +68,24 @@ export default function Navbar() {
           </div>
 
           {/* CTA Button */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-3">
+            {isAdmin && (
+              <>
+                <Link
+                  href="/admin/projects"
+                  className="border border-blue-500/40 bg-blue-500/10 px-4 py-2 rounded-lg text-sm font-medium text-blue-300 hover:bg-blue-500/20 transition-colors duration-200"
+                >
+                  Admin
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="border border-slate-700 bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            )}
             <Link className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200" href="/contact">
               Let's Talk
             </Link>
@@ -86,6 +125,27 @@ export default function Navbar() {
                 {menu.name}
               </Link>
             ))}
+            {isAdmin && (
+              <>
+                <Link
+                  href="/admin/projects"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full text-center mt-4 border border-blue-500/40 bg-blue-500/10 text-blue-300 font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Admin
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleLogout();
+                  }}
+                  className="block w-full text-center mt-4 border border-slate-700 bg-slate-800 text-slate-200 font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            )}
             <Link href="/contact" onClick={() => setIsOpen(false)} className="block w-full text-center mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
               Let's Talk
             </Link>

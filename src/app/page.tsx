@@ -2,27 +2,51 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { project } from '@/data/project';
 import { motion } from 'framer-motion';
+
+type ProjectItem = {
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+  category: string;
+  size: string;
+};
 
 export default function Home() {
   const [currentPreview, setCurrentPreview] = useState(0);
-  const projectList = Object.entries(project ?? {}).flatMap(
-    ([category, items]) =>
-      Array.isArray(items)
-        ? items.map((item) => ({
-            ...item,
-            category,
-          }))
-        : []
-  );
+  const [dbProjects, setDbProjects] = useState<ProjectItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const response = await fetch('/api/projects');
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data)) {
+          setDbProjects(result.data);
+        } else {
+          setDbProjects([]);
+        }
+      } catch (error) {
+        console.error('Failed to load projects from database:', error);
+        setDbProjects([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
+
+  const projectList = dbProjects;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentPreview((prev)=> (prev +1)% projectList.length);
+      setCurrentPreview((prev)=> (prev +1)% Math.max(projectList.length, 1));
     }, 2500);
     return() => clearInterval(interval);
-  }, []);
+  }, [projectList.length]);
 
   const categoryColors: { [key: string]: string } = {
     'UI/UX Design':
@@ -34,13 +58,11 @@ export default function Home() {
     'Mobile Apps':
       'text-green-300 border-green-500/30',
   };
-  const totalProjects = Object.values(project)
-  .flat()
-  .length;
+  const totalProjects = dbProjects.length;
   const stats = [
     { id: 1, value: totalProjects.toString(), label: "Projects Completed" },
     { id: 2, value: "Frontend", label: "Focused Development" },
-    { id: 3, value: "6th Semester", label: "Informatics Student" },
+    { id: 3, value: "7th Semester", label: "Informatics Student" },
     { id: 4, value: "Continuous", label: "Learner" },
   ];
 
@@ -141,7 +163,9 @@ export default function Home() {
           )}
         </motion.div>
 
-        {projectList.length === 0 ? (
+        {isLoading ? (
+          <div className="py-20 text-center text-slate-400">Loading projects...</div>
+        ) : projectList.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
