@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       subject: `New message from ${fullName}`,
       html: `
         <h3><bold>From: </bold> ${fullName} </h3>
-        <h4><bold>${email}</bold></h4>
+        <h4><bold>Email: </bold> ${email} </h4>
         <p>${message}</p>
       `,
     });
